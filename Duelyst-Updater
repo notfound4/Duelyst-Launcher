@@ -1,0 +1,60 @@
+#!/bin/bash
+
+
+update_duelyst () {
+	#download the binaries
+	wget http://downloads.counterplay.co/duelyst/v$CURRENT_VERSION/duelyst-v$CURRENT_VERSION-win32-x64.zip
+
+	#remove old stuff
+	rm -rf Duelyst-linux-x64
+
+	#extract it
+	unzip duelyst-v$CURRENT_VERSION-win32-x64.zip -d duelyst-v$CURRENT_VERSION
+	rm duelyst-v$CURRENT_VERSION-win32-x64.zip
+
+	#tweak app
+	pushd duelyst-v$CURRENT_VERSION/resources/app
+	sed -i "s/app.on('ready', function () {/app.on('ready', function () {\n  argv.token = '32432543254'\n/" desktop.js
+	sed -i "/if (pkgJson.name === 'duelyst' && argv.token === undefined) {/,+12d" desktop.js
+	sed -i "s/fullscreen: \!argv.windowed/fullscreen: false/" desktop.js
+	sed -i "s/if (process.platform === 'win32') setupWin32Shortcuts()/if (process.platform === 'win32' || process.platform === 'linux') setupWin32Shortcuts()/" desktop.js
+	
+	#build it
+	npm install electron-prebuilt --save
+	npm install && electron-packager . $npm_package_productName --asar --platform=linux --overwrite --arch=x64 --app-version=$npm_package_version --icon=icon.icns --out=build --ignore='build|node_modules/gulp-*|node_modules/(electron-packager|electron-prebuilt|electron-rebuild|electron-windows-installer|electron-connect|gulp|tape)'
+	
+	#make the folder
+	mv build/Duelyst-linux-x64/ ../../..
+	
+	#remove working folder
+	popd
+	cp duelyst-v$CURRENT_VERSION/resources/app/icon.png .
+	rm -rf duelyst-v$CURRENT_VERSION
+
+	echo $CURRENT_VERSION > local_version
+
+	echo "[Desktop Entry]" > ~/.local/share/applications/Duelyst.desktop
+	echo "Name=Duelyst" >> ~/.local/share/applications/Duelyst.desktop
+	echo "Exec=bash $(pwd)/Duelyst-Updater" >> ~/.local/share/applications/Duelyst.desktop
+	echo "Icon=$(pwd)/icon.png" >> ~/.local/share/applications/Duelyst.desktop
+	echo "Terminal=true" >> ~/.local/share/applications/Duelyst.desktop
+	echo "Type=Application" >> ~/.local/share/applications/Duelyst.desktop
+	echo "Categories=Game;" >> ~/.local/share/applications/Duelyst.desktop
+}
+
+
+CURRENT_VERSION=$(curl https://updates.counterplay.co/ 2>/dev/null | grep -v staging | grep zip |\
+                  grep -o http://downloads.counterplay.co/duelyst/v[1-9\.]* | head -n 1 | tail -c +42)
+
+cd "`dirname "$0"`"
+
+if [ -f local_version ]; then
+	LOCAL_VERSION=$(cat local_version)
+	if [ ! "$LOCAL_VERSION" == "$CURRENT_VERSION" ]; then
+		update_duelyst
+	fi
+else
+	update_duelyst
+fi
+
+./Duelyst-linux-x64/Duelyst
