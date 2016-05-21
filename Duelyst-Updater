@@ -12,6 +12,11 @@ update_duelyst () {
 	unzip duelyst-v$CURRENT_VERSION-win32-x64.zip -d duelyst-v$CURRENT_VERSION
 	rm duelyst-v$CURRENT_VERSION-win32-x64.zip
 
+	#get electron version
+	pushd duelyst-v$CURRENT_VERSION/
+	ELECTRON_VERSION=$(cat version  | tail -c +2)
+	popd
+
 	#tweak app
 	pushd duelyst-v$CURRENT_VERSION/resources/app
 	sed -i "s/app.on('ready', function () {/app.on('ready', function () {\n  argv.token = '32432543254'\n/" desktop.js
@@ -21,7 +26,7 @@ update_duelyst () {
 	
 	#build it
 	npm install electron-packager
-	npm install electron-prebuilt@0.37.8 --save
+	npm install electron-prebuilt@${ELECTRON_VERSION} --save
 	npm install && ./node_modules/.bin/electron-packager . $npm_package_productName --asar --platform=linux --overwrite --arch=x64 --app-version=$npm_package_version --icon=icon.icns --out=build --ignore='build|node_modules/gulp-*|node_modules/(electron-packager|electron-prebuilt|electron-rebuild|electron-windows-installer|electron-connect|gulp|tape)'
 	
 	#make the folder
