@@ -20,8 +20,9 @@ update_duelyst () {
 	sed -i "s/if (process.platform === 'win32') setupWin32Shortcuts()/if (process.platform === 'win32' || process.platform === 'linux') setupWin32Shortcuts()/" desktop.js
 	
 	#build it
-	npm install electron-prebuilt --save
-	npm install && electron-packager . $npm_package_productName --asar --platform=linux --overwrite --arch=x64 --app-version=$npm_package_version --icon=icon.icns --out=build --ignore='build|node_modules/gulp-*|node_modules/(electron-packager|electron-prebuilt|electron-rebuild|electron-windows-installer|electron-connect|gulp|tape)'
+	npm install electron-packager
+	npm install electron-prebuilt@0.37.8 --save
+	npm install && ./node_modules/.bin/electron-packager . $npm_package_productName --asar --platform=linux --overwrite --arch=x64 --app-version=$npm_package_version --icon=icon.icns --out=build --ignore='build|node_modules/gulp-*|node_modules/(electron-packager|electron-prebuilt|electron-rebuild|electron-windows-installer|electron-connect|gulp|tape)'
 	
 	#make the folder
 	mv build/Duelyst-linux-x64/ ../../..
