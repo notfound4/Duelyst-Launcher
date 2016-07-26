@@ -50,7 +50,7 @@ update_duelyst () {
 
 
 CURRENT_VERSION=$(curl https://updates.counterplay.co/ 2>/dev/null | grep -v staging | grep zip |\
-                  grep -o http://downloads.counterplay.co/duelyst/v[1-9\.]* | head -n 1 | tail -c +42)
+                  grep -o http://downloads.counterplay.co/duelyst/v[0-9\.]* | head -n 1 | tail -c +42)
 
 cd "`dirname "$0"`"
 
