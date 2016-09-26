@@ -3,7 +3,7 @@
 
 update_duelyst () {
 	#download the binaries
-	wget http://downloads.counterplay.co/duelyst/v$CURRENT_VERSION/duelyst-v$CURRENT_VERSION-win32-x64.zip
+	wget -c http://downloads.counterplay.co/duelyst/v$CURRENT_VERSION/duelyst-v$CURRENT_VERSION-win32-x64.zip
 
 	#remove old stuff
 	rm -rf Duelyst-linux-x64
