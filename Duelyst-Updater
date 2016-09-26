@@ -35,7 +35,7 @@ update_duelyst () {
 	echo "Name=Duelyst" >> ~/.local/share/applications/Duelyst.desktop
 	echo "Exec=bash $(pwd)/Duelyst-Updater" >> ~/.local/share/applications/Duelyst.desktop
 	echo "Icon=$(pwd)/icon.png" >> ~/.local/share/applications/Duelyst.desktop
-	echo "Terminal=true" >> ~/.local/share/applications/Duelyst.desktop
+	echo "Terminal=false" >> ~/.local/share/applications/Duelyst.desktop
 	echo "Type=Application" >> ~/.local/share/applications/Duelyst.desktop
 	echo "Categories=Game;" >> ~/.local/share/applications/Duelyst.desktop
 }
