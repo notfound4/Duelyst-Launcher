@@ -55,4 +55,4 @@ else
 	update_duelyst
 fi
 
-./Duelyst-linux-x64/Duelyst
+./Duelyst-linux-x64/Duelyst -w
