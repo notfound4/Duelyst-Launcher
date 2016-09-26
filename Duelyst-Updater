@@ -19,11 +19,8 @@ update_duelyst () {
 
 	#tweak app
 	pushd duelyst-v$CURRENT_VERSION/resources/app
-	sed -i "s/app.on('ready', function () {/app.on('ready', function () {\n  argv.token = '32432543254'\n/" desktop.js
-	sed -i "/if (pkgJson.name === 'duelyst' && argv.token === undefined) {/,+12d" desktop.js
-	sed -i "s/fullscreen: \!argv.windowed/fullscreen: false/" desktop.js
-	sed -i "s/if (process.platform === 'win32') setupWin32Shortcuts()/if (process.platform === 'win32' || process.platform === 'linux') setupWin32Shortcuts()/" desktop.js
-	
+	patch desktop.js ../../../linux_patch.diff
+
 	#build it
 	npm install electron-packager
 	npm install electron-prebuilt@${ELECTRON_VERSION} --save
