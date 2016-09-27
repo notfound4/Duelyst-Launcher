@@ -3,7 +3,7 @@
 
 update_duelyst () {
 	#download the binaries
-	wget http://downloads.counterplay.co/duelyst/v$CURRENT_VERSION/duelyst-v$CURRENT_VERSION-win32-x64.zip
+	wget -c http://downloads.counterplay.co/duelyst/v$CURRENT_VERSION/duelyst-v$CURRENT_VERSION-win32-x64.zip
 
 	#remove old stuff
 	rm -rf Duelyst-linux-x64
@@ -12,26 +12,18 @@ update_duelyst () {
 	unzip duelyst-v$CURRENT_VERSION-win32-x64.zip -d duelyst-v$CURRENT_VERSION
 	rm duelyst-v$CURRENT_VERSION-win32-x64.zip
 
-	#get electron version
-	pushd duelyst-v$CURRENT_VERSION/
-	ELECTRON_VERSION=$(cat version  | tail -c +2)
-	popd
-
-	#tweak app
+	#patch app
 	pushd duelyst-v$CURRENT_VERSION/resources/app
-	sed -i "s/app.on('ready', function () {/app.on('ready', function () {\n  argv.token = '32432543254'\n/" desktop.js
-	sed -i "/if (pkgJson.name === 'duelyst' && argv.token === undefined) {/,+12d" desktop.js
-	sed -i "s/fullscreen: \!argv.windowed/fullscreen: false/" desktop.js
-	sed -i "s/if (process.platform === 'win32') setupWin32Shortcuts()/if (process.platform === 'win32' || process.platform === 'linux') setupWin32Shortcuts()/" desktop.js
-	
+	patch desktop.js ../../../linux_patch.diff
+
 	#build it
 	npm install electron-packager
-	npm install electron-prebuilt@${ELECTRON_VERSION} --save
+	npm install electron --save-dev
 	npm install && ./node_modules/.bin/electron-packager . $npm_package_productName --asar --platform=linux --overwrite --arch=x64 --app-version=$npm_package_version --icon=icon.icns --out=build --ignore='build|node_modules/gulp-*|node_modules/(electron-packager|electron-prebuilt|electron-rebuild|electron-windows-installer|electron-connect|gulp|tape)'
-	
+
 	#make the folder
 	mv build/Duelyst-linux-x64/ ../../..
-	
+
 	#remove working folder
 	popd
 	cp duelyst-v$CURRENT_VERSION/resources/app/icon.png .
@@ -43,7 +35,7 @@ update_duelyst () {
 	echo "Name=Duelyst" >> ~/.local/share/applications/Duelyst.desktop
 	echo "Exec=bash $(pwd)/Duelyst-Updater" >> ~/.local/share/applications/Duelyst.desktop
 	echo "Icon=$(pwd)/icon.png" >> ~/.local/share/applications/Duelyst.desktop
-	echo "Terminal=true" >> ~/.local/share/applications/Duelyst.desktop
+	echo "Terminal=false" >> ~/.local/share/applications/Duelyst.desktop
 	echo "Type=Application" >> ~/.local/share/applications/Duelyst.desktop
 	echo "Categories=Game;" >> ~/.local/share/applications/Duelyst.desktop
 }
@@ -63,4 +55,4 @@ else
 	update_duelyst
 fi
 
-./Duelyst-linux-x64/Duelyst
+./Duelyst-linux-x64/Duelyst -w
